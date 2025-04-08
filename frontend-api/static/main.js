@@ -3,9 +3,9 @@ const API_FLIGHTS = "http://localhost:8000/flights";
 const API_AUTH = "http://localhost:8082/me";
 const API_GATEWAY = "http://localhost:8084/parse";
 
-// Убедитесь, что переменные API_KEY и API_ADMIN_KEY настроены в вашем окружении или передаются через переменные.
-const API_KEY = "TNUr9MZK3Sgmy5hswnJGCExvH7VacRbpFDP6YA4Wuf8dj"; // Ваш API ключ для работы с обычными пользователями
-const API_ADMIN_KEY = "khyWYbSHGjxUd98J2BwR4fNPrpgXv6ztZVmDAELqCs7Kc"; // API ключ для работы с админами
+
+const API_KEY = "TNUr9MZK3Sgmy5hswnJGCExvH7VacRbpFDP6YA4Wuf8dj";
+const API_ADMIN_KEY = "khyWYbSHGjxUd98J2BwR4fNPrpgXv6ztZVmDAELqCs7Kc";
 
 let isAdmin = false;
 let sortKey = null;
@@ -196,7 +196,6 @@ function renderFlights() {
 }
 
 // Создание нового рейса
-// Создание нового рейса
 async function createFlight() {
     const body = {
         number: document.getElementById("f_number").value,
@@ -276,6 +275,7 @@ async function deleteAllFlights() {
         alert(`Ошибка при удалении всех рейсов: ${error.error || 'Неизвестная ошибка'}`);
     }
 }
+
 // Внешнее API - загрузка рейсов по ICAO коду
 async function loadExternalFlights() {
     const icao = document.getElementById("icaoInput").value.trim().toUpperCase();
@@ -318,6 +318,7 @@ async function addAdmin() {
         alert("Ошибка при добавлении администратора");
     }
 }
+
 // Редактирование рейса
 function editFlight(id) {
     const flight = flights.find(f => f.id === id);

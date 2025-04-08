@@ -2,10 +2,9 @@ package middleware
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 func AdminOnly() gin.HandlerFunc {
