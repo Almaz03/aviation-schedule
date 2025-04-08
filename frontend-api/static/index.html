@@ -68,9 +68,11 @@
             <input placeholder="Вылет" id="f_departure" class="border p-2 rounded" />
             <input placeholder="Прилет" id="f_arrival" class="border p-2 rounded" />
             <select id="f_status" class="border p-2 rounded">
-                <option>on time</option>
-                <option>delayed</option>
-                <option>cancelled</option>
+                <option value="scheduled">scheduled</option>
+                <option value="delayed">delayed</option>
+                <option value="active">active</option>
+                <option value="landed">landed</option>
+                <option value="cancelled">cancelled</option>
             </select>
         </div>
         <button onclick="createFlight()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Добавить рейс</button>
