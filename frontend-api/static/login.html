@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">🔐 Вход в систему</h1>
+    <form id="loginForm" class="space-y-4">
+        <input type="text" id="username" placeholder="Логин" class="border p-2 w-full" required />
+        <input type="password" id="password" placeholder="Пароль" class="border p-2 w-full" required />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Войти</button>
+        <button type="button" id="registerBtn" class="bg-gray-500 text-white px-4 py-2 rounded w-full mt-2">Зарегистрироваться</button>
+    </form>
+</div>
+<script>
+    const loginForm = document.getElementById("loginForm");
+    const API_KEY = "TNUr9MZK3Sgmy5hswnJGCExvH7VacRbpFDP6YA4Wuf8dj"; // Убедитесь, что переменная API_KEY определена
+
+    loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        const res = await fetch("http://localhost:8082/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, role: "user" }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            window.location.href = "index.html";
+        } else {
+            alert("Ошибка входа: " + (data.error || "неизвестная ошибка"));
+        }
+    };
+
+    document.getElementById("registerBtn").onclick = async () => {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!username || !password) return alert("Заполните все поля");
+
+        try {
+            const res = await fetch("http://localhost:8082/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "API-Key": API_KEY
+                },
+                body: JSON.stringify({ username, password, role: "user" }),
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert("Регистрация успешна. Теперь войдите.");
+            } else {
+                alert("Ошибка регистрации: " + (data.error || "неизвестная ошибка"));
+            }
+        } catch (err) {
+            alert("Ошибка при подключении к серверу. Пожалуйста, попробуйте позже.");
+        }
+    };
+</script>
+</body>
+</html>

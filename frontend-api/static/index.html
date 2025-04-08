@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <title>Расписание рейсов</title>
+    <script>
+        tailwind.config = { darkMode: 'attribute' }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 overflow-x-hidden transition-colors duration-300">
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="text-sm">
+            <div id="dateBox" class="font-medium"></div>
+            <div id="timeBox" class="mt-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-3 py-1 inline-block rounded-md text-sm font-mono shadow">
+                --:--:--
+            </div>
+        </div>
+        <h1 class="text-3xl font-bold text-center flex-1">📅 Расписание рейсов</h1>
+        <div class="flex items-center gap-2">
+            <button id="toggleTheme" class="bg-gray-400 dark:bg-gray-400 text-sm px-3 py-1 rounded flex items-center gap-1">
+                <span id="themeIcon">🌙</span>
+                <span class="hidden sm:inline">Тема</span>
+            </button>
+            <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Выйти</button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto shadow rounded w-full">
+        <table class="w-full table-auto text-sm bg-white dark:bg-blue-900 text-blue-900 dark:text-blue-100-100">
+            <thead class="bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100">
+            <tr class="text-left text-sm">
+                <th id="sortNumber" class="p-3 cursor-pointer hover:underline">Номер ↑↓</th>
+                <th id="sortOrigin" class="p-3 cursor-pointer hover:underline">Откуда ↑↓</th>
+                <th id="sortDestination" class="p-3 cursor-pointer hover:underline">Куда ↑↓</th>
+                <th id="sortDeparture" class="p-3 cursor-pointer hover:underline">Вылет ↑↓</th>
+                <th id="sortArrival" class="p-3 cursor-pointer hover:underline">Прилет ↑↓</th>
+                <th class="p-3">
+                    <select id="statusFilter" class="text-sm p-1 bg-blue-50 dark:bg-blue-700 text-blue-900 dark:text-blue-100 rounded">
+                        <option value="all">Все</option>
+                        <option value="scheduled">scheduled</option>
+                        <option value="delayed">delayed</option>
+                        <option value="active">active</option>
+                        <option value="landed">landed</option>
+                        <option value="cancelled">cancelled</option>
+                    </select>
+                </th>
+                <th id="th-actions" class="p3 text-center hidden">Действия</th>
+            </tr>
+            </thead>
+            <tbody id="flightTableBody" class="divide-y divide-gray-200 dark:divide-gray-600">
+            <!-- Данные -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- АДМИН-ПАНЕЛЬ -->
+    <div id="adminPanel" class="mt-10 hidden">
+        <h2 class="text-xl font-semibold mb-3">➕ Добавить рейс</h2>
+        <div class="grid grid-cols-6 gap-2 mb-3">
+            <input placeholder="Номер" id="f_number" class="border p-2 rounded" />
+            <input placeholder="Откуда" id="f_origin" class="border p-2 rounded" />
+            <input placeholder="Куда" id="f_dest" class="border p-2 rounded" />
+            <input placeholder="Вылет" id="f_departure" class="border p-2 rounded" />
+            <input placeholder="Прилет" id="f_arrival" class="border p-2 rounded" />
+            <select id="f_status" class="border p-2 rounded">
+                <option>on time</option>
+                <option>delayed</option>
+                <option>cancelled</option>
+            </select>
+        </div>
+        <button onclick="createFlight()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Добавить рейс</button>
+
+        <!-- Добавить админа -->
+        <div id="adminUserForm" class="mt-8 border-t pt-4">
+            <h2 class="text-xl font-semibold mb-2">➕ Добавить администратора</h2>
+            <div class="flex gap-2 mb-2">
+                <input id="admin_username" placeholder="Логин" class="border p-2 rounded flex-1" />
+                <input id="admin_password" placeholder="Пароль" type="password" class="border p-2 rounded flex-1" />
+                <button onclick="addAdmin()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Добавить</button>
+            </div>
+        </div>
+
+        <!-- Загрузка с внешнего API -->
+        <div class="mt-10 border-t pt-4">
+            <h2 class="text-xl font-semibold mb-2">🌐 Загрузить рейсы по ICAO</h2>
+            <div class="flex gap-2 mb-2">
+                <input id="icaoInput" placeholder="Напр. UUEE" class="border p-2 rounded flex-1" />
+                <button onclick="loadExternalFlights()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    🔄 Загрузить рейсы
+                </button>
+            </div>
+        </div>
+
+        <!-- Удаление прошедших и всех рейсов -->
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">🗑 Удалить прошедшие рейсы</h2>
+            <button onclick="deletePastFlights()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Удалить рейсы, у которых прилёт уже прошёл
+            </button>
+        </div>
+        <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">❌ Удалить ВСЕ рейсы</h2>
+            <button onclick="deleteAllFlights()" class="bg-red-800 text-white px-4 py-2 rounded hover:bg-red-900">
+                Удалить все рейсы безвозвратно
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- МОДАЛКА -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-6 rounded-lg shadow-lg w-full max-w-xl">
+        <h2 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-200">Редактировать рейс</h2>
+        <div class="grid grid-cols-6 gap-2 mb-4">
+            <input id="edit_number" class="border p-2 rounded" placeholder="Номер" />
+            <input id="edit_origin" class="border p-2 rounded" placeholder="Откуда" />
+            <input id="edit_dest" class="border p-2 rounded" placeholder="Куда" />
+            <input id="edit_departure" class="border p-2 rounded" placeholder="Вылет" />
+            <input id="edit_arrival" class="border p-2 rounded" placeholder="Прилет" />
+            <select id="edit_status" class="border p-2 rounded">
+                <option value="scheduled">scheduled</option>
+                <option value="delayed">delayed</option>
+                <option value="active">active</option>
+                <option value="landed">landed</option>
+                <option value="cancelled">cancelled</option>
+            </select>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-100 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600">Отмена</button>
+            <button onclick="saveEdit()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
