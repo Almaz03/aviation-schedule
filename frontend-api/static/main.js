@@ -366,4 +366,6 @@ async function saveEdit() {
         alert("Ошибка при сохранении");
     }
 }
+applyTheme();
 init();
+

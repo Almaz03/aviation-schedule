@@ -1,81 +1,44 @@
 version: '3.8'
 
 services:
-  auth-api:
-    build:
-      context: ./auth-api
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
     ports:
-      - "8082:8082"
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=flights
-      - DB_USER=admin
-      - DB_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
     depends_on:
-      db:
-        condition: service_healthy
-    restart: on-failure
+      - prometheus
 
-  flight-api:
+  mock-users:
     build:
-      context: ./flight-api
+      context: ./mock-users
+      dockerfile: Dockerfile  # Указываем Dockerfile напрямую
+    container_name: mock-users
     ports:
-      - "8085:8083"  # Изменен внешний порт чтобы избежать конфликта
+      - "9100:9100"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=flights
-      - DB_USER=admin
-      - DB_PASSWORD=admin
+      - CONCURRENCY=100
+      - DURATION=600
+      - WAVES=5
+      - INTERVAL=5
+    restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
-    restart: on-failure
+      - prometheus
 
-  frontend-api:
-    build:
-      context: ./frontend-api
-    ports:
-      - "8083:8083"  # Оставляем frontend на стандартном порту 8083
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: on-failure
-
-  gateway-api:
-    build:
-      context: ./gateway-api
-    ports:
-      - "8084:8084"
-    depends_on:
-      - auth-api
-      - flight-api
-      - frontend-api
-    restart: on-failure
-
-  db:
-      image: postgres:15-alpine
-      environment:
-        - POSTGRES_USER=admin
-        - POSTGRES_PASSWORD=admin
-        - POSTGRES_DB=flights
-      volumes:
-        - pg_data:/var/lib/postgresql/data
-      ports:
-        - "5432:5432"
-      healthcheck:
-        test: [ "CMD-SHELL", "pg_isready -U admin -d flights" ]
-        interval: 5s
-        timeout: 5s
-        retries: 10
-      command: >
-        bash -c "
-        echo 'Waiting for PostgreSQL to start...';
-        until pg_isready -U admin -d flights; do sleep 2; done;
-        echo 'PostgreSQL started';
-        psql -U admin -d flights -c 'CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username VARCHAR(50) UNIQUE, password VARCHAR(50))';
-        psql -U admin -d flights -c \"INSERT INTO users (username, password) VALUES ('admin', 'admin') ON CONFLICT (username) DO NOTHING;\"
-        "
 volumes:
-  pg_data:
+  grafana-storage:
