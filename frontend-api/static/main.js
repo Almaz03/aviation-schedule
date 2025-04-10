@@ -21,6 +21,7 @@ document.getElementById("logoutBtn").onclick = () => {
     window.location.href = "login.html";
 };
 
+
 // Переключение темы
 document.getElementById("toggleTheme").onclick = () => {
     const html = document.documentElement;
@@ -172,19 +173,27 @@ function renderFlights() {
         }[f.status.toLowerCase()] || (isDark ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-800");
 
         row.innerHTML = `
-          <td class="${baseTdClass}">${f.number}</td>
-          <td class="${baseTdClass}">${f.origin}</td>
-          <td class="${baseTdClass}">${f.destination}</td>
-          <td class="${baseTdClass}">${formatDateTime(f.departure_time)}</td>
-          <td class="${baseTdClass}">${formatDateTime(f.arrival_time)}</td>
-          <td class="${baseTdClass} status-overlay"><span class="px-3 py-1 rounded-full ${statusColor} text-sm font-medium">${f.status}</span></td>
-          <td class="${baseTdClass} text-center actions">
-            ${isAdmin ? `
-              <button onclick="editFlight(${f.id})" class="text-blue-500 hover:underline">✏️</button>
-              <button onclick="deleteFlight(${f.id})" class="text-red-500 hover:underline ml-2">🗑️</button>
-            ` : ""}
-          </td>
-        `;
+  <td class="${baseTdClass}">
+    <span class="flex items-center">
+      <button onclick="window.open('https://www.flightradar24.com/${f.number}', '_blank')" 
+              class="mr-2 hover:opacity-80" title="Открыть в Flightradar24">
+        🔍
+      </button>
+      ${f.number}
+    </span>
+  </td>
+  <td class="${baseTdClass}">${f.origin}</td>
+  <td class="${baseTdClass}">${f.destination}</td>
+  <td class="${baseTdClass}">${formatDateTime(f.departure_time)}</td>
+  <td class="${baseTdClass}">${formatDateTime(f.arrival_time)}</td>
+  <td class="${baseTdClass} status-overlay"><span class="px-3 py-1 rounded-full ${statusColor} text-sm font-medium">${f.status}</span></td>
+  <td class="${baseTdClass} text-center actions">
+    ${isAdmin ? `
+      <button onclick="editFlight(${f.id})" class="text-blue-500 hover:underline">✏️</button>
+      <button onclick="deleteFlight(${f.id})" class="text-red-500 hover:underline ml-2">🗑️</button>
+    ` : ""}
+  </td>
+`;
 
         // Если не админ, скрываем действия
         if (!isAdmin) {
@@ -366,6 +375,29 @@ async function saveEdit() {
         alert("Ошибка при сохранении");
     }
 }
+// Функция для открытия Flightradar24
+function openFlightRadar() {
+    const flightNumber = document.getElementById('flightNumberInput').value.trim().toUpperCase();
+    if (!flightNumber) {
+        alert('Пожалуйста, введите номер рейса');
+        return;
+    }
+
+    // Метод, который не блокируется браузерами
+    const link = document.createElement('a');
+    link.href = `https://www.flightradar24.com/${flightNumber}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Назначение обработчика после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('flightRadarBtn').addEventListener('click', openFlightRadar);
+});
+
 applyTheme();
 init();
 

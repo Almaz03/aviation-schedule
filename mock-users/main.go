@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	// Создаем контекст с таймаутом (берем из переменной окружения или используем значение по умолчанию)
-	dur := getDurationFromEnv("DURATION", 300) // 60 секунд по умолчанию
+
+	dur := getDurationFromEnv("DURATION", 300)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(dur)*time.Second)
 	defer cancel()
 

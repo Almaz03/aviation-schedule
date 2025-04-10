@@ -1,0 +1,2 @@
+2025/04/10 01:43:10 Starting server on :9100
+2025/04/10 01:43:10 ListenAndServe failed: listen tcp :9100: bind: address already in use

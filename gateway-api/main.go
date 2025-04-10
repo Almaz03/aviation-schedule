@@ -15,7 +15,7 @@ const AVIATIONSTACK_API = "fb44e5a1b5ad5e0838894ba916c1c241"
 type Flight struct {
 	FlightDate   string `json:"flight_date"`
 	FlightNumber struct {
-		IATA string `json:"iata"` // flight_iata
+		IATA string `json:"icao"` // flight_iata
 	} `json:"flight"`
 	Departure struct {
 		Airport   string `json:"airport"`

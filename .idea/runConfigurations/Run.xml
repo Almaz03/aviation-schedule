@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run" type="CompoundRunConfigurationType">
+    <toRun name="Auth" type="GoApplicationRunConfiguration" />
+    <toRun name="Flight-API" type="GoApplicationRunConfiguration" />
+    <toRun name="Frontend" type="GoApplicationRunConfiguration" />
+    <toRun name="Gateway-API" type="GoApplicationRunConfiguration" />
+    <method v="2" />
+  </configuration>
+</component>
